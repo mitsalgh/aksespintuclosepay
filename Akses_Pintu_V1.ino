@@ -1,13 +1,26 @@
-#define pinLimitSwitch 2
-#define pinRelaySolenoid 0
-#define pinSensorNoTouch 3
+//#include <DigiUSB.h>
+//#include <oddebug.h>
+//#include <osccal.h>
+//#include <osctune.h>
+//#include <rx_buffer.h>
+//#include <usbconfig-prototype.h>
+//#include <usbconfig.h>
+//#include <usbdrv.h>
+//#include <usbportability.h>
+//
+//
+//#include <SoftSerial.h>  // Serial Lib
+
+#define pinLimitSwitch A1
+#define pinRelaySolenoid 2
+#define pinSensorNoTouch A2
 
 String statePintu="closed";
 String dataSTB="";
 void setup() {
  Serial.begin(9600);
- pinMode(pinLimitSwitch, INPUT);
- pinMode(pinSensorNoTouch,INPUT);
+ pinMode(pinLimitSwitch, INPUT_PULLUP);
+ pinMode(pinSensorNoTouch,INPUT_PULLUP);
  pinMode(pinRelaySolenoid,OUTPUT);
  statePintu="closed";
 }
@@ -16,56 +29,44 @@ void loop()
 {
   if(Serial.available()>0)
   {
-    delay(10);
-    dataSTB= Serial.readString();
-    if(dataSTB=="open")
-    {
-      digitalWrite(pinRelaySolenoid,HIGH);
-      while(digitalRead(pinLimitSwitch ==LOW))
+      delay(10);
+      dataSTB= Serial.readString();
+      if(dataSTB=="o\n" ||dataSTB=="o" || dataSTB=="O\n" || dataSTB=="O")
       {
-        while(digitalRead(pinLimitSwitch==HIGH))
+        Serial.println("Diterima : open");
+        digitalWrite(pinRelaySolenoid,HIGH);
+        delay(5000);
+        digitalWrite(pinRelaySolenoid,LOW);
+        delay(200);
+        while(digitalRead(pinLimitSwitch)==LOW)
         {
-          digitalWrite(pinRelaySolenoid,LOW);
-          statePintu="open";
-          Serial.println(statePintu);
-          delay(10);
-          while(statePintu=="open")
+          delay(100);
+          if(digitalRead(pinLimitSwitch)==HIGH)
           {
-            if(digitalRead(pinLimitSwitch==LOW))
-            {
-              Serial.println("closed");
-              delay(10);
-              break;
-              setup();
-            }
+            Serial.println("closed");
+            break;
           }
         }
       }
+      
     }
-  }
-  else if(digitalRead(pinSensorNoTouch==LOW))
-  {
-    digitalWrite(pinRelaySolenoid,HIGH);
-      while(digitalRead(pinLimitSwitch ==LOW))
-      {
-        while(digitalRead(pinLimitSwitch==HIGH))
+    else if(digitalRead(pinSensorNoTouch)== LOW)
+    {
+      Serial.println("exit");
+      digitalWrite(pinRelaySolenoid,HIGH);
+      delay(5000);
+      digitalWrite(pinRelaySolenoid,LOW);
+      delay(200);
+      while(digitalRead(pinLimitSwitch)==LOW)
         {
-          digitalWrite(pinRelaySolenoid,LOW);
-          statePintu="open";
-          Serial.println(statePintu);
-          delay(10);
-          while(statePintu=="open")
+          delay(100);
+
+          if(digitalRead(pinLimitSwitch)==HIGH)
           {
-            if(digitalRead(pinLimitSwitch==LOW))
-            {
-              Serial.println("closed");
-              delay(10);
-              break;
-              setup();
-            }
+            Serial.println("closed");
+            break;
           }
         }
-      }
-  }
-
+    }
+  
 }
