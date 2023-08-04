@@ -11,33 +11,45 @@
 //
 //#include <SoftSerial.h>  // Serial Lib
 
+#include <string.h>
+#include <SoftwareSerial.h>
+#include <SPI.h>
+#include <Wire.h>
+
 #define pinLimitSwitch A1
 #define pinRelaySolenoid 2
 #define pinSensorNoTouch A2
 
 String statePintu="closed";
 String dataSTB="";
+String modeProgram="";
+
+
 void setup() {
  Serial.begin(9600);
  pinMode(pinLimitSwitch, INPUT_PULLUP);
  pinMode(pinSensorNoTouch,INPUT_PULLUP);
  pinMode(pinRelaySolenoid,OUTPUT);
  statePintu="closed";
+ modeProgram="testing"; 
 }
 
 void loop() 
 {
+  
   if(Serial.available()>0)
   {
       delay(10);
       dataSTB= Serial.readString();
+//      Serial.println(dataSTB);
+//      delay(000);
       if(dataSTB=="o\n" ||dataSTB=="o" || dataSTB=="O\n" || dataSTB=="O")
       {
         Serial.println("Diterima : open");
         digitalWrite(pinRelaySolenoid,HIGH);
-        delay(5000);
+        delay(2000);
         digitalWrite(pinRelaySolenoid,LOW);
-        delay(200);
+        delay(100);
         while(digitalRead(pinLimitSwitch)==LOW)
         {
           delay(100);
@@ -54,9 +66,9 @@ void loop()
     {
       Serial.println("exit");
       digitalWrite(pinRelaySolenoid,HIGH);
-      delay(5000);
+      delay(2000);
       digitalWrite(pinRelaySolenoid,LOW);
-      delay(200);
+      delay(100);
       while(digitalRead(pinLimitSwitch)==LOW)
         {
           delay(100);
@@ -68,5 +80,4 @@ void loop()
           }
         }
     }
-  
 }
